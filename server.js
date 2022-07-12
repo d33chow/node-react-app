@@ -13,6 +13,11 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 app.use(express.static(path.join(__dirname, "client/build")));
 
+app.post('/api/loadMovies', (req, res) => {
+	let string = JSON.stringify(movies);
+	res.send({ express: string });
+});
+
 
 app.post('/api/loadUserSettings', (req, res) => {
 
