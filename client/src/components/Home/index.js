@@ -18,6 +18,7 @@ import Select from '@material-ui/core/Select';
 
 //Dev mode
 const serverURL = "ec2-18-216-101-119.us-east-2.compute.amazonaws.com:3092"; //enable for dev mode
+//const serverURL = ""; //enable for dev mode
 
 //Deployment mode instructions
 //const serverURL = "http://ov-research-4.uwaterloo.ca:PORT"; //enable for deployed mode; Change PORT to the port number given to you;
@@ -66,22 +67,7 @@ const MainGridContainer = styled(Grid)(({ theme }) => ({
 
 const App = () => {
 
-  const [submittedReviews, setSubmittedReviews] = React.useState([
-    {
-      title: "Shrek Review",
-      rating: '2',
-      movie: "Shrek",
-      body: "Good.",
-      reviewID: 1,
-    },
-    {
-      title: "Morbin'",
-      rating: '3',
-      movie: "Morbius",
-      body: "Bad.",
-      reviewID: 2
-    },
-  ]);
+  const [submittedReviews, setSubmittedReviews] = React.useState([]);
 
   //I had ideas to put images for each movie to go along with it
   //I only have plans to do so for now, so excuse the poor form
@@ -118,27 +104,16 @@ const App = () => {
   const [PastReviews, setPastReviews] = React.useState(submittedReviews);
   const [MovieList, setMovieList] = React.useState([]);
 
-  React.useEffect(() => {
-    setPastReviews(submittedReviews)
-  },
-    [submittedReviews]
-  )
+  React.useEffect(() => { setPastReviews(submittedReviews) }, [submittedReviews]);
 
-  React.useEffect(() => {
-    setReviews(template())
-  },
-    [PastReviews]
-  )
+  React.useEffect(() => { setReviews(template()) }, [PastReviews]);
 
-  React.useEffect(() => {
-    loadMovies()
-  },
-    []
-  )
+  React.useEffect(() => { loadMovies() }, []);
 
   const loadMovies = () => {
     callApiLoadMovies()
       .then(res => {
+        console.log("callApiLoadRecipes returned: ", res)
         var parsed = JSON.parse(res.express);
         setMovieList(parsed);
       })
@@ -159,6 +134,32 @@ const App = () => {
 
   const handleUpdate = (item) => {
     setSubmittedReviews(current => [item, ...current]);
+    callSubmitReview(item);
+  }
+
+  const callSubmitReview = async (item) => {
+
+    const url = serverURL + "/api/submitReview";
+
+    console.log(item);
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        reviewID: item.reviewID,
+        body: item.body,
+        title: item.title,
+        score: item.rating,
+        movieID: item.movie
+      })
+    });
+    const body = await response.json();
+    if (response.status !== 200) throw Error(body.message);
+    console.log(body.message);
+    return body;
   }
 
   /*backround settings, header and display initalizing code*/
@@ -300,7 +301,7 @@ const Item = ({ item, onUpdate, movies }) => {
           <Grid>
 
             Movie:
-            {movie == "" ?
+            {movie === "" ?
               <div>(Please state the movie for review)</div>
               : <></>}
             <Grid>
@@ -312,13 +313,13 @@ const Item = ({ item, onUpdate, movies }) => {
                 style={{ width: 600, marginBottom: lightTheme.spacing(4) }}
               >
                 {movies.map(value =>
-                  <MenuItem value={value.title}>{value.title}</MenuItem>
+                  <MenuItem value={value.id}>{value.name}</MenuItem>
                 )}
               </Select>
             </Grid>
 
             Title:
-            {title == "" ?
+            {title === "" ?
               <div>(Please put a title for this review)</div>
               : <></>}
             <Grid>
@@ -333,7 +334,7 @@ const Item = ({ item, onUpdate, movies }) => {
             </Grid>
 
             Body:
-            {body == "" ?
+            {body === "" ?
               <div>(Please put down your review)</div>
               : <></>}
             <Grid>
@@ -348,7 +349,7 @@ const Item = ({ item, onUpdate, movies }) => {
             </Grid>
 
             Rating:
-            {rating == "" ?
+            {rating === "" ?
               <div>(Please put your rating for the movie)</div>
               : <></>}
             <Grid>
