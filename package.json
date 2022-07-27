@@ -7,11 +7,18 @@
     "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.2.4",
+    "@emotion/react": "^11.9.3",
+    "@emotion/styled": "^11.9.3",
     "dotenv": "^8.1.0",
     "express": "^4.16.4",
+    "framer-motion": "^4.1.17",
     "mysql": "^2.17.1",
     "node-fetch": "^2.6.1",
     "nodemon": "^1.19.3",
+    "plotly.js": "^2.13.3",
+    "react-horizontal-scroll-container": "^1.0.1",
+    "react-plotly.js": "^2.5.1",
     "recompose": "^0.30.0",
     "yarn": "^1.22.18"
   },
